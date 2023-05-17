@@ -5,4 +5,3 @@ let print = () => {
 };
 
 module.exports = print;
-return 'hello';
