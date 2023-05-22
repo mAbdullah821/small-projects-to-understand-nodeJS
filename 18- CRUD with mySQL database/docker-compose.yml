@@ -1,0 +1,17 @@
+version: '3'
+
+services:
+  mySql_DB:
+    image: mysql:8.0.33
+    container_name: mySql_DB
+    ports:
+      - '3303:3306'
+    environment:
+      - MYSQL_ROOT_PASSWORD=root_password
+      - MYSQL_DATABASE=understand_nodejs_database
+      - MYSQL_USER=hello
+      - MYSQL_PASSWORD=world
+    volumes:
+      - mysql-db:/var/lib/mysql
+volumes:
+  mysql-db:
