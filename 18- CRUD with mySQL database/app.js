@@ -1,5 +1,5 @@
 const express = require('express');
-const mysql = require('mysql2/promise');
+const createMySqlConnection = require('./utils/createMySqlConnection');
 const userController = require('./controllers/user');
 const courseController = require('./controllers/course');
 
@@ -9,12 +9,9 @@ const PORT = 5050;
 app.use(express.json());
 
 (async () => {
-  const sqlConn = await mysql.createConnection({
-    user: 'hello',
-    password: 'world',
-    database: 'understand_nodejs_database',
-    port: '3303',
-  });
+  const sqlConn = await createMySqlConnection();
+  // -----> this also work with the second commented "module.exports" in "createMySqlConnection.js";
+  // const sqlConn = await createMySqlConnection;
 
   const user = userController(sqlConn);
   const course = courseController(sqlConn);

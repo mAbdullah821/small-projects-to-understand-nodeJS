@@ -1,4 +1,4 @@
-const tryCatch = require('../tryCatch');
+const tryCatch = require('../utils/tryCatch');
 
 module.exports = (sqlConn) => {
   const getAllCourses = (req, res) => {
