@@ -1,0 +1,10 @@
+<%- include('partials/header'); -%> 
+
+<section>
+  <% imgs.forEach((imgPath)=> { %>
+    <div style="max-width: 50%; margin: 1rem auto">
+      <img src='<%= imgPath %>' alt="<%= title %>" style='width: 100%'/>
+    </div>
+  <% }) %>
+</section>
+<%- include('partials/footer'); -%>

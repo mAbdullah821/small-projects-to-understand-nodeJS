@@ -1,0 +1,11 @@
+<script>
+  document.querySelectorAll('li').forEach((li) => {
+     li.addEventListener('click', () => {
+         const a = li.querySelector('a');
+         location.pathname = '/' + a.href.split('/').at([-1]);
+       });
+     });
+
+ </script>
+</body>
+</html>

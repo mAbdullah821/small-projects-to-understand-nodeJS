@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title><%=title%></title>
+    <style>
+      ul {
+        display: grid;
+        grid-template-columns: 2fr 1fr 1fr;
+      }
+
+      li {
+        cursor: pointer;
+        display: block;
+        text-align: center;
+        padding: 1rem;
+        transition: border 0.1s, border-radius 0.1s;
+      }
+
+      li a {
+        text-decoration: none;
+        color: black;
+      }
+
+      li:hover, .active {
+        border: 0.1rem solid #1da1f2;
+        border-radius: 10px;
+      }
+
+    </style>
+  </head>
+  <body>
+    <ul>
+      <li class=<%= url === '/'? 'active': ''%>><a href="/">Home</a></li>
+      <li class=<%= url === '/nature'? 'active': ''%>><a href="/nature">Nature</a></li>
+      <li class=<%= url === '/quotes'? 'active': ''%>><a href="/quotes">Quotes</a></li>
+    </ul>

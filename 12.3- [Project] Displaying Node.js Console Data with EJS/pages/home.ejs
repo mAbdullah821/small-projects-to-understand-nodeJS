@@ -1,0 +1,18 @@
+<%- include('partials/header'); -%>
+<section style="align-items: center">
+  <%data.forEach(({title: aTitle, status: aStatus})=>{ %>
+  <div
+    style="
+      border: 2px solid rgba(20, 19, 19, 0.763);
+      margin: 1rem;
+      max-width: 50%;
+      margin: 1rem auto 1rem;
+      text-align: center;
+    "
+  >
+    <h3>title: <%= aTitle %></h3>
+    <h4>status: <%= aStatus %></h4>
+  </div>
+  <% }) %>
+</section>
+<%- include('partials/footer'); -%>
