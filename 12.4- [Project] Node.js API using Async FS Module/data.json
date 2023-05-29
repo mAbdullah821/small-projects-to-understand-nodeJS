@@ -1,0 +1,64 @@
+[
+  {
+    "id": 1,
+    "username": "memo1",
+    "password": "1234",
+    "firstName": "Hello World",
+    "loggedIn": true,
+    "todoList": [
+      {
+        "id": 2,
+        "title": "Hello World again :)",
+        "status": "in progress"
+      },
+      {
+        "id": 5,
+        "title": "Hello World again :)",
+        "status": "to-do"
+      },
+      {
+        "id": 6,
+        "title": "Hello World :)",
+        "status": "to-do"
+      }
+    ]
+  },
+  {
+    "id": 2,
+    "username": "memo2",
+    "password": "1234",
+    "firstName": "Hello World",
+    "loggedIn": false,
+    "todoList": []
+  },
+  {
+    "id": 3,
+    "username": "memo3",
+    "password": "1234",
+    "firstName": "Hello",
+    "loggedIn": false,
+    "todoList": [
+      {
+        "id": 1,
+        "title": "Hello World again :)",
+        "status": "in progress"
+      }
+    ]
+  },
+  {
+    "id": 4,
+    "username": "memo4",
+    "password": "1234",
+    "firstName": "Hello",
+    "loggedIn": false,
+    "todoList": []
+  },
+  {
+    "id": 5,
+    "username": "nemo0",
+    "password": "1234",
+    "firstName": "Nemo",
+    "loggedIn": true,
+    "todoList": []
+  }
+]
