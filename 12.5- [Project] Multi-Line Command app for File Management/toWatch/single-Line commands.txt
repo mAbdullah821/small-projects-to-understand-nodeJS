@@ -1,0 +1,15 @@
+create a file /hello.txt
+add to the file /hello.txt content: hello world1
+add to the file /hello.txt content: hello world12
+add to the file /hello.txt content: hello world123
+add to the file /hello.txt content: hello world1234
+add to the file /hello.txt content: hello world12345
+rename the file /hello.txt to /helloPro.txt
+rename the file /helloPro.txt to /helloPro2.txt
+rename the file /helloPro2.txt to /helloPro3.txt
+rename the file /helloPro3.txt to /helloPro4.txt
+rename the file /helloPro4.txt to /helloPro5.txt
+create a file /hello2.txt
+add to the file /hello2.txt content: good by
+delete the file /hello2.txt
+not valid command
