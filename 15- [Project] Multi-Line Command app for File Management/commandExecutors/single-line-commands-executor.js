@@ -39,7 +39,7 @@ class SingleLineCommandsExecutor {
         WATCHED_DIRECTORY + `/${SINGLE_LINE_COMMANDS_FILE}`
       );
 
-      this._fileHandler.on('change', async (command, cb) => {
+      this._fileHandler.on('change', async (command, cb = null) => {
         let validCommand = false;
 
         // create a file <relative_path>
@@ -70,7 +70,7 @@ class SingleLineCommandsExecutor {
           this._handleCommandIsNotValid(command);
         }
 
-        cb.call(tempThis);
+        if (typeof cb === 'function') cb.call(tempThis);
       });
     } catch (err) {
       console.error(`Error opening file, ${err}`);

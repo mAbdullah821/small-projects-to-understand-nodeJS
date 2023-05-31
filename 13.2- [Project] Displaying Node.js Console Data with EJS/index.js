@@ -9,7 +9,7 @@ const localhost = '127.0.0.1';
 const naturePath = path.join(__dirname, './images/Nature/');
 const quotesPath = path.join(__dirname, './images/Quotes/');
 const dbPath =
-  '../12.2- nodeJs console application with [Sync fs]/todoList.json';
+  '../13- [Project] Node.js Console App using Sync FS/todoList.json';
 
 const readDB = (render) => {
   return fs.readFile(dbPath, 'utf8', (err, data) => {

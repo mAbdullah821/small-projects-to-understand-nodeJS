@@ -13,7 +13,7 @@ const {
   await multiLineAppendExecutor.initializeFileHandler();
 
   const watcher = chokidar.watch(WATCHED_DIRECTORY);
-  console.log('the directory is being watched...');
+  console.log(`the directory: [${WATCHED_DIRECTORY}] is being watched...`);
 
   watcher.on('change', async (path) => {
     if (path.includes(SINGLE_LINE_COMMANDS_FILE)) {
