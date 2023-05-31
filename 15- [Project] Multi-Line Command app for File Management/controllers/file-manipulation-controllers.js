@@ -12,10 +12,7 @@ const createFile = async (path) => {
         const fileHandler = await fs.open(path, 'w');
         fileHandler.close();
 
-        // Changing ROOT_PATH in config may cause issues. Be careful.
-        console.log(
-          `The file ${path.split('..').at(-1)} created successfully!`
-        );
+        console.log(`The file ${path} created successfully!`);
       } catch (error) {
         console.error(`Error creating file: ${error}`);
       }
@@ -28,10 +25,7 @@ const createFile = async (path) => {
 const deleteFile = async (path) => {
   try {
     await fs.unlink(path);
-    // Changing ROOT_PATH in config may cause issues. Be careful.
-    console.log(
-      `The file ${path.split('..').at(-1)} was deleted successfully!`
-    );
+    console.log(`The file ${path} was deleted successfully!`);
   } catch (err) {
     if (err.code === 'ENOENT') {
       console.error(`The file ${path} is not exists`);
@@ -44,12 +38,7 @@ const deleteFile = async (path) => {
 const renameFile = async (oldPath, newPath) => {
   try {
     await fs.rename(oldPath, newPath);
-    // Changing ROOT_PATH in config may cause issues. Be careful.
-    console.log(
-      `Renamed file from '${oldPath.split('..').at(-1)}' to '${newPath
-        .split('..')
-        .at(-1)}' successfully!`
-    );
+    console.log(`Renamed file from '${oldPath}' to '${newPath}' successfully!`);
   } catch (err) {
     if (err.code === 'ENOENT') {
       console.error(`The file ${err.path} not found`);
@@ -64,10 +53,7 @@ const addToFile = async (path, content) => {
     const fileHandler = await fs.open(path, 'a');
     await fileHandler.appendFile(content);
     fileHandler.close();
-    // Changing ROOT_PATH in config may cause issues. Be careful.
-    console.log(
-      `Content added successfully! to the file ${path.split('..').at(-1)}`
-    );
+    console.log(`Content added successfully! to the file ${path}`);
   } catch (err) {
     if (err.code === 'ENOENT') {
       console.error(`The file ${path} not found`);
