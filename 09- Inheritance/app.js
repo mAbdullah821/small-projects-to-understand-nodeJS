@@ -65,6 +65,7 @@ const mySelf = new Me();
 
 console.dir(mySelf);
 mySelf.displayMyInfo();
+console.log('---------------------');
 // ----- create a new variable in the (mySelf) object, with a name [displayMyInfo], the origin [displayMyInfo] function will not change (will remain as it is);
 
 // mySelf.printMyName = newFunction();
@@ -72,6 +73,7 @@ mySelf.displayMyInfo();
 mySelf.printMyName.coco = '1010';
 mySelf.printMyName.age = 10;
 console.log(mySelf.printMyName.coco + ' |:| ' + mySelf.printMyName.age);
+console.log('---------------------');
 
 const mySelf2 = new Me();
 console.log(mySelf2.printMyName);
