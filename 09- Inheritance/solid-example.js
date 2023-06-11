@@ -5,6 +5,21 @@
 // I: Interface segregation principle (ISP).
 // D: Dependency inversion principle (DIP).
 
+class Item {
+  constructor(name, price) {
+    this.name = name;
+    this.price = price;
+  }
+
+  getName() {
+    return this.name;
+  }
+
+  getPrice() {
+    return this.price;
+  }
+}
+
 // Looks like interface
 class SomethingNeedsNotificationService {
   getMessage() {
@@ -46,17 +61,6 @@ class Transaction extends SomethingNeedsNotificationService {
   }
 }
 
-class Notifier {
-  constructor(somethingNeedsNotificationService, notifier) {
-    this.something = somethingNeedsNotificationService;
-    this.notifier = notifier;
-  }
-
-  sendNotification() {
-    this.notifier.notify(this.something.getMessage());
-  }
-}
-
 // Looks like interface
 class NotificationService {
   notify(msg) {
@@ -86,18 +90,14 @@ class SmsService extends NotificationService {
   }
 }
 
-class Item {
-  constructor(name, price) {
-    this.name = name;
-    this.price = price;
+class Notifier {
+  constructor(somethingNeedsNotificationService, notifier) {
+    this.something = somethingNeedsNotificationService;
+    this.notifier = notifier;
   }
 
-  getName() {
-    return this.name;
-  }
-
-  getPrice() {
-    return this.price;
+  sendNotification() {
+    this.notifier.notify(this.something.getMessage());
   }
 }
 
