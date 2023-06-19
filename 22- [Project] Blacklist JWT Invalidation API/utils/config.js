@@ -1,7 +1,7 @@
 const containerMysql = process.env.containerMysql === 'true';
 
 const MYSQL_DATABASE = 'nodeAppDB';
-const MYSQL_PORT = containerMysql ? '3303' : 'local_mysql_port'; // container:localhost
+const MYSQL_PORT = containerMysql ? '3303' : '3306'; // container:localhost
 const MYSQL_USER = containerMysql ? 'hello' : 'local_mysql_user'; // container:localhost
 const MYSQL_PASSWORD = containerMysql ? 'world' : 'local_mysql_password'; // container:localhost
 
