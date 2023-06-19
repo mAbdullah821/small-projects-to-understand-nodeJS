@@ -1,10 +1,12 @@
 const fs = require('fs');
-const { isOrderedDirectoryName, getAllNewDirectoryNames } = require('./utils');
-const { rootPath } = require('./config');
+const { getAllNewDirectoryNames } = require('./utils');
+const { rootPath, orderedDirectoryNameRegex } = require('./config');
 
 const directories = fs
   .readdirSync(rootPath, { withFileTypes: true })
-  .filter((file) => file.isDirectory() && isOrderedDirectoryName(file.name))
+  .filter(
+    (file) => file.isDirectory() && orderedDirectoryNameRegex.test(file.name)
+  )
   .map((directory) => directory.name);
 
 const newDirectoryNames = getAllNewDirectoryNames(directories);

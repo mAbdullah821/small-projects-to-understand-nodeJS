@@ -1,8 +1,14 @@
-const { startFromOrder, increaseBy, paddingLength } = require('./config');
+const {
+  startFromOrder,
+  increaseBy,
+  paddingLength,
+  orderedDirectoryNameRegex,
+} = require('./config');
 
 const getDirectoryOrder = (directoryName, returnStringOrder = false) => {
-  const orderRegex = /^[0-9.]+/;
-  const stringOrder = directoryName.match(orderRegex)[0];
+  const numberRegex = /^[0-9.]+/;
+  let stringOrder = directoryName.match(orderedDirectoryNameRegex)[0];
+  stringOrder = stringOrder.match(numberRegex)[0];
 
   if (returnStringOrder) return stringOrder;
 
@@ -19,8 +25,12 @@ const getNewDirectoryName = (directoryName, increaseBy) => {
 
   if (stringOrderFractionPart) paddedOrder += `.${stringOrderFractionPart}`;
 
-  const dashSymbolIndex = directoryName.indexOf('-');
-  const newDirectoryName = paddedOrder + directoryName.slice(dashSymbolIndex);
+  const startFrom = directoryName.search(orderedDirectoryNameRegex);
+  const dashSymbolIndex = directoryName.indexOf('-', startFrom);
+  const newDirectoryName =
+    directoryName.slice(0, startFrom) +
+    paddedOrder +
+    directoryName.slice(dashSymbolIndex);
 
   return newDirectoryName;
 };
@@ -44,12 +54,6 @@ const getAllNewDirectoryNames = (directories) => {
   return newNames;
 };
 
-const isOrderedDirectoryName = (directoryName) => {
-  const orderedNameRegex = /^[ ]*[0-9.]+- /;
-  return orderedNameRegex.test(directoryName);
-};
-
 module.exports = {
-  isOrderedDirectoryName,
   getAllNewDirectoryNames,
 };
