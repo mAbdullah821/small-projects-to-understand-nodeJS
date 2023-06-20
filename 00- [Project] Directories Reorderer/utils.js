@@ -1,7 +1,7 @@
 const {
   startFromOrder,
   increaseBy,
-  paddingLength,
+  leadingZerosLength,
   orderedDirectoryNameRegex,
 } = require('./config');
 
@@ -21,7 +21,7 @@ const getNewDirectoryName = (directoryName, increaseBy) => {
   const stringOrderFractionPart = stringOrder.split('.')[1];
 
   const newOrder = Number(stringOrderIntegerPart) + increaseBy;
-  let paddedOrder = String(newOrder).padStart(paddingLength, '0');
+  let paddedOrder = String(newOrder).padStart(leadingZerosLength, '0');
 
   if (stringOrderFractionPart) paddedOrder += `.${stringOrderFractionPart}`;
 
