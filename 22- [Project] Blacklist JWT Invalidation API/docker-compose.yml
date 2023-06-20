@@ -3,7 +3,7 @@ services:
   mysql-db:
     # image: mysql:8.0.33
     build:
-      context: .
+      context: ./mysql
     container_name: mysql-db
     ports:
       - '3303:3306'
@@ -14,5 +14,13 @@ services:
       - MYSQL_PASSWORD=world
     volumes:
       - mysql-db:/var/lib/mysql
+  redis:
+    image: redis:7.0.10
+    container_name: redis-whitelist-caching
+    ports:
+      - '6379:6379'
+    volumes:
+      - redis-cache:/data
 volumes:
   mysql-db:
+  redis-cache:
