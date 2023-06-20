@@ -22,18 +22,21 @@ const validateToken = async (token) => {
     const { userId, deviceId } = payload.data;
     const issuedAt = payload.iat;
 
-    const userDeviceBlacklistedAt =
-      await jwtInvalidationService.getUserDeviceBlacklistedAt(userId, deviceId);
-    const userAllDevicesBlacklistedAt =
-      await jwtInvalidationService.getUserAllDevicesBlacklistedAt(userId);
-    const allUsersDevicesBlacklistedAt =
-      await jwtInvalidationService.getAllUsersDevicesBlacklistedAt();
+    const blacklistedAtArr = [];
 
-    const blacklistedAt = Math.max(
-      userDeviceBlacklistedAt,
-      userAllDevicesBlacklistedAt,
-      allUsersDevicesBlacklistedAt
+    blacklistedAtArr.push(
+      jwtInvalidationService.getUserDeviceBlacklistedAt(userId, deviceId)
     );
+    blacklistedAtArr.push(
+      jwtInvalidationService.getUserAllDevicesBlacklistedAt(userId)
+    );
+    blacklistedAtArr.push(
+      jwtInvalidationService.getAllUsersDevicesBlacklistedAt()
+    );
+
+    const result = await Promise.all(blacklistedAtArr);
+
+    const blacklistedAt = Math.max(...result);
 
     if (blacklistedAt && issuedAt <= blacklistedAt)
       throw new Error('Blacklisted token');
