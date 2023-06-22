@@ -7,6 +7,8 @@ const MYSQL_PASSWORD = containerMysql ? 'world' : 'local_mysql_password'; // con
 
 const SERVER_PORT = 3030;
 
+const REDIS_TOKEN_TTL = 15 * 60; // 15 minutes
+
 const JWT_SECRET = 'jwtSecret';
 const JWT_TTL = 1 * 60 * 60; // 1 hour in seconds
 
@@ -17,6 +19,7 @@ module.exports = {
   MYSQL_PORT,
   MYSQL_USER,
   MYSQL_PASSWORD,
+  REDIS_TOKEN_TTL,
   SERVER_PORT,
   JWT_SECRET,
   JWT_TTL,
