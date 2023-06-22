@@ -1,9 +1,13 @@
-const isAdmin = require('./is-admin');
+const extractTokenData = require('./extract-token-data');
+const isWhitelistedToken = require('./is-whitelisted-token');
 const validateToken = require('./validate-token');
 const isTokenValid = require('./is-token-valid');
+const isAdmin = require('./is-admin');
 
 module.exports = {
-  isAdmin,
+  extractTokenData,
+  isWhitelistedToken,
   validateToken,
   isTokenValid,
+  isAdmin,
 };
