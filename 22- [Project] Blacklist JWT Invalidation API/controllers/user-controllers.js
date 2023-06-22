@@ -1,23 +1,31 @@
 const userModel = require('../models/user-model');
 const deviceModel = require('../models/device-model');
 const jwtInvalidationService = require('../services/jwt-invalidation-service');
+const whitelistService = require('../services/whitelist-cache-service');
 
 const sayHiUser = async (req, res) => {
   let username = 'stranger';
   let deviceName = 'somewhere';
   let rule = undefined;
 
-  if (req.user) {
-    const user = await userModel.getUserFromUserId(req.user.userId);
-    deviceName = await deviceModel.getDeviceNameFromDeviceId(req.user.deviceId);
+  try {
+    if (req.user) {
+      const user = await userModel.getUserFromUserId(req.user.userId);
+      deviceName = await deviceModel.getDeviceNameFromDeviceId(
+        req.user.deviceId
+      );
 
-    username = user.username;
-    rule = req.user.rule;
+      username = user.username;
+      rule = req.user.rule;
+    }
+
+    res.send({
+      msg: `Hi, '${username}' from [${deviceName}] with (${rule}) privilege :)`,
+    });
+  } catch (err) {
+    console.log(err);
+    next(new Error('Internal Database Error!'));
   }
-
-  res.send({
-    msg: `Hi, '${username}' from [${deviceName}] with (${rule}) privilege :)`,
-  });
 };
 
 const logout = async (req, res, next) => {
@@ -26,26 +34,37 @@ const logout = async (req, res, next) => {
   const deviceId = req.user.deviceId;
   let done = null;
 
-  const tokenExpiration = await deviceModel.getTokenExpirationFromDeviceId(
-    deviceId
-  );
-
-  if (type === 'singleDevice')
-    done = await jwtInvalidationService.invalidateUserDevice(
-      userId,
-      deviceId,
-      tokenExpiration
+  try {
+    const tokenExpiration = await deviceModel.getTokenExpirationFromDeviceId(
+      deviceId
     );
-  else if (type === 'allDevices')
-    done = await jwtInvalidationService.invalidateUserAllDevices(
-      userId,
-      tokenExpiration
-    );
-  else return next(new Error('Not valid path!'));
 
-  if (!done) return next(new Error('Unable to invalidate token!'));
+    if (type === 'singleDevice') {
+      done = await jwtInvalidationService.invalidateUserDevice(
+        userId,
+        deviceId,
+        tokenExpiration
+      );
 
-  res.send({ msg: 'Logged out successfully :)' });
+      await whitelistService.removeSingleUserTokenFromWhitelist(
+        userId,
+        deviceId
+      );
+    } else if (type === 'allDevices') {
+      done = await jwtInvalidationService.invalidateUserAllDevices(
+        userId,
+        tokenExpiration
+      );
+
+      await whitelistService.removeAllUserTokensFromWhitelist(userId);
+    } else throw new Error('Not valid path!');
+
+    if (!done) throw new Error('Unable to invalidate token!');
+
+    res.send({ msg: 'Logged out successfully :)' });
+  } catch (err) {
+    next(err);
+  }
 };
 
 module.exports = {
