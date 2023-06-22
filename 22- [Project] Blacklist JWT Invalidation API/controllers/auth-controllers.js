@@ -33,7 +33,8 @@ const login = async (req, res, next) => {
       deviceName
     );
 
-    // Token is still valid: (action) blacklisted it before create new token
+    // Is previous token is still valid?:
+    //          (Yes --|--> action) blacklisted it before create new token.
     if (device && device.tokenExp * 1000 > Date.now()) {
       const done = await jwtInvalidationService.invalidateUserDevice(
         user.id,
