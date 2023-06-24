@@ -1,0 +1,127 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "JWT Invalidation",
+    "description": "Invalidate JWT using a database blacklist technique with whitelist caching",
+    "version": "1.0.0"
+  },
+  "servers": [
+    { "url": "http://localhost:3030/", "description": "Main app server" }
+  ],
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "name": "Authorization",
+        "description": "Bearer token to access these api endpoints",
+        "required": "true"
+      }
+    },
+    "schemas": {
+      "successful": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "example": "Success"
+          },
+          "msg": {
+            "type": "string"
+          }
+        }
+      },
+      "error": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "example": "Error"
+          },
+          "msg": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  },
+  "paths": {
+    "/user/logout/{type}": {
+      "get": {
+        "summary": "User logout",
+        "description": "Logout user by invalid the JWT token either from a single device or from all devices",
+        "parameters": [
+          {
+            "name": "type",
+            "in": "path",
+            "required": "true",
+            "description": "Choose one type from:\r\n\r\n \tsingleDevice:-> for single device invalidation.\r\n\r\n \tallDevices:-> for all devices invalidation.",
+            "schema": {
+              "type": "string",
+              "enum": ["singleDevice", "allDevices"],
+              "example": "singleDevice"
+            }
+          }
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Logout"
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#components/schemas/error"
+                },
+                "examples": {
+                  "Invalid Token": {
+                    "value": {
+                      "status": "Error",
+                      "msg": "Invalid bearer token!"
+                    }
+                  },
+                  "Blacklisted Token": {
+                    "value": {
+                      "status": "Error",
+                      "msg": "Blacklisted token"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#components/schemas/error"
+                },
+                "examples": {
+                  "Cache Error": {
+                    "value": {
+                      "status": "Error",
+                      "msg": "Internal Cache error!"
+                    }
+                  },
+                  "Database Error": {
+                    "value": {
+                      "status": "Error",
+                      "msg": "Internal Database Server error!"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
