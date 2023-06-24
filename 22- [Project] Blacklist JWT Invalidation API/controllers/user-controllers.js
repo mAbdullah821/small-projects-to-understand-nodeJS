@@ -19,12 +19,10 @@ const sayHiUser = async (req, res) => {
       rule = req.user.rule;
     }
 
-    res
-      .status(200)
-      .send({
-        status: 'Success',
-        msg: `Hi, '${username}' from [${deviceName}] with (${rule}) privilege :)`,
-      });
+    res.status(200).send({
+      status: 'Success',
+      msg: `Hi, '${username}' from [${deviceName}] with (${rule}) privilege :)`,
+    });
   } catch (err) {
     console.log(err);
     req.statusCode = 500;
@@ -71,9 +69,7 @@ const logout = async (req, res, next) => {
       throw new Error('Unable to invalidate token!');
     }
 
-    res
-      .status(204)
-      .send({ status: 'Success', msg: 'Logged out successfully :)' });
+    res.sendStatus(204);
   } catch (err) {
     next(err);
   }

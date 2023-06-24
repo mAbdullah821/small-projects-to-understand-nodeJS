@@ -35,9 +35,7 @@ const invalidateUsers = async (req, res, next) => {
       throw new Error('Unable to invalidate tokens!');
     }
 
-    res
-      .status(204)
-      .send({ status: 'Success', msg: 'Invalidate tokens successfully :)' });
+    res.sendStatus(204);
   } catch (err) {
     next(err);
   }
