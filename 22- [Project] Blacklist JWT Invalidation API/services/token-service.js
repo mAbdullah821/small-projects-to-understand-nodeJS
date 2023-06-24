@@ -34,7 +34,7 @@ const validateToken = async (tokenData) => {
     result = await Promise.all(blacklistedAtArr);
   } catch (err) {
     console.log(err);
-    throw new Error('Inter Database server error!');
+    throw new Error('Internal Database server error!');
   }
 
   const blacklistedAt = Math.max(...result);
