@@ -9,6 +9,7 @@ module.exports = async (req, res, next) => {
       const { userId, deviceId } = req.user;
       await whitelistService.addUserTokenToWhitelist(userId, deviceId);
     } catch (err) {
+      req.statusCode = err.message.startsWith('Blacklisted') ? 401 : 500;
       return next(err);
     }
   }

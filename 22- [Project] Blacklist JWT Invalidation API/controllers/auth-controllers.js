@@ -8,7 +8,8 @@ const signup = async (req, res, next) => {
   try {
     const { username } = req.body;
     const userId = await userModel.addNewUser(username);
-    res.send({
+    res.status(201).send({
+      status: 'Success',
       msg: 'Account created successfully :)',
       user: {
         id: userId,
@@ -17,6 +18,7 @@ const signup = async (req, res, next) => {
     });
   } catch (err) {
     console.log(err);
+    req.statusCode = 500;
     next(err);
   }
 };
@@ -26,7 +28,10 @@ const login = async (req, res, next) => {
     const { username, deviceName } = req.body;
     const user = await userModel.getUserFromUsername(username);
 
-    if (!user) throw new Error('The user is not registered!');
+    if (!user) {
+      req.statusCode = 404;
+      throw new Error('The user is not registered!');
+    }
 
     const device = await deviceModel.getDeviceByUserIdAndName(
       user.id,
@@ -43,7 +48,10 @@ const login = async (req, res, next) => {
         true
       );
 
-      if (!done) throw new Error('Unable to invalidate device token!');
+      if (!done) {
+        req.statusCode = 500;
+        throw new Error('Unable to invalidate device token!');
+      }
     }
 
     let deviceId = null;
@@ -65,10 +73,14 @@ const login = async (req, res, next) => {
       expireAt
     );
 
-    if (!affectedRows)
+    if (!affectedRows) {
+      req.statusCode = 500;
       throw new Error('Cannot update token expiration for that device!');
+    }
 
-    res.send({ msg: 'Successful login :)', token });
+    res
+      .status(200)
+      .send({ status: 'Success', msg: 'Successful login :)', token });
   } catch (err) {
     console.log(err);
     next(err);

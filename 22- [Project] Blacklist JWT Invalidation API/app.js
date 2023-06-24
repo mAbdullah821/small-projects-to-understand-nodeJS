@@ -31,7 +31,7 @@ app.use('/', (req, res) => {
 });
 
 app.use((err, req, res, next) => {
-  res.send({ msg: err.message });
+  res.status(req.statusCode).send({ status: 'Error', msg: err.message });
 });
 
 (async () => {

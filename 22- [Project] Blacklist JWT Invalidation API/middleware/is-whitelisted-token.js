@@ -13,6 +13,7 @@ module.exports = async (req, res, next) => {
         req.user = { userId, deviceId, rule };
       }
     } catch (err) {
+      req.statusCode = 500;
       return next(err);
     }
   }

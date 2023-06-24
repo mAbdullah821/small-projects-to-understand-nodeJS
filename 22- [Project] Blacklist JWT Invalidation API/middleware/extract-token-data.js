@@ -16,6 +16,7 @@ module.exports = async (req, res, next) => {
 
     next();
   } catch (err) {
+    req.statusCode = 401;
     return next(new Error('Invalid bearer token!'));
   }
 };

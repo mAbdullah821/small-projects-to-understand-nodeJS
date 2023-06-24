@@ -26,12 +26,18 @@ const invalidateUsers = async (req, res, next) => {
 
       await whitelistService.removeAllUsersTokensFromWhitelist();
     } else {
+      req.statusCode = 404;
       throw new Error('Not valid path!');
     }
 
-    if (!done) throw new Error('Unable to invalidate tokens!');
+    if (!done) {
+      req.statusCode = 500;
+      throw new Error('Unable to invalidate tokens!');
+    }
 
-    res.send({ msg: 'Invalidate tokens successfully :)' });
+    res
+      .status(204)
+      .send({ status: 'Success', msg: 'Invalidate tokens successfully :)' });
   } catch (err) {
     next(err);
   }
