@@ -12,7 +12,7 @@ function createWorker() {
 
 async function main() {
   const numThreads = 100;
-  console.log(`Benchmarking with ${numThreads} threads...`);
+  console.log(`Benchmarking with 1 to ${numThreads} threads...`);
   for (let i = 1; i <= numThreads; i++) {
     const start = Date.now();
     const promisesArray = [];
