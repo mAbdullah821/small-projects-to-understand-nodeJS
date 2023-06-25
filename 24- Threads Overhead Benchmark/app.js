@@ -1,17 +1,6 @@
 const { Worker } = require('worker_threads');
 
-// Benchmarking with 10 threads... [In my 2 core CPU 2.90GHz with 4 logical threads]
-// 1 Threads: 17757ms
-// 2 Threads: 9492ms
-// 3 Threads: 6392ms
-// 4 Threads: 5409ms
-// 5 Threads: 5151ms
-// 6 Threads: 5290ms
-// 7 Threads: 5364ms
-// 8 Threads: 5312ms
-// 9 Threads: 5319ms
-// 10 Threads: 5731ms
-// Benchmark complete.
+// Benchmarking with 1 to 1000 threads... [In my 2 core CPU 2.90GHz with 4 logical threads]
 
 function createWorker() {
   return new Promise((resolve, reject) => {
