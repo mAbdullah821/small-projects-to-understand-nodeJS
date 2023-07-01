@@ -5,7 +5,7 @@ class Counter {
 
   constructor() {
     if (!Counter.#isInternalConstructing) {
-      throw new TypeError('PrivateConstructor is not constructable');
+      throw new TypeError('Private Constructor is not constructable');
     }
 
     this.#counter = 0;
