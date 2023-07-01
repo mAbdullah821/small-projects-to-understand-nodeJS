@@ -6,7 +6,7 @@
     "version": "1.0.0"
   },
   "servers": [
-    { "url": "http://localhost:3030/", "description": "Main app server" }
+    { "url": "http://localhost:3030/", "description": "Localhost app server" }
   ],
   "components": {
     "securitySchemes": {
@@ -14,8 +14,7 @@
         "type": "http",
         "scheme": "bearer",
         "name": "Authorization",
-        "description": "Bearer token to access these api endpoints",
-        "required": "true"
+        "description": "Bearer token to access these api endpoints"
       }
     },
     "schemas": {
@@ -71,6 +70,91 @@
         "responses": {
           "204": {
             "description": "Successful Logout"
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#components/schemas/error"
+                },
+                "examples": {
+                  "Invalid Token": {
+                    "value": {
+                      "status": "Error",
+                      "msg": "Invalid bearer token!"
+                    }
+                  },
+                  "Blacklisted Token": {
+                    "value": {
+                      "status": "Error",
+                      "msg": "Blacklisted token"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#components/schemas/error"
+                },
+                "examples": {
+                  "Cache Error": {
+                    "value": {
+                      "status": "Error",
+                      "msg": "Internal Cache error!"
+                    }
+                  },
+                  "Database Error": {
+                    "value": {
+                      "status": "Error",
+                      "msg": "Internal Database Server error!"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/": {
+      "get": {
+        "summary": "Welcome user",
+        "description": "Display the user data",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#components/schemas/success"
+                },
+                "examples": {
+                  "Registered User": {
+                    "value": {
+                      "status": "Success",
+                      "msg": "Hi, 'user' from [device] with (user) privilege :)"
+                    }
+                  },
+                  "Non Registered User": {
+                    "value": {
+                      "status": "Success",
+                      "msg": "Hi, 'stranger' from [somewhere] with (undefined) privilege :)"
+                    }
+                  }
+                }
+              }
+            }
           },
           "401": {
             "description": "Unauthorized",
