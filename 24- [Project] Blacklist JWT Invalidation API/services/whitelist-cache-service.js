@@ -1,5 +1,5 @@
 const { REDIS_TOKEN_TTL } = require('../utils/config');
-const redisClient = require('../utils/redisConnection');
+const RedisClient = require('../utils/redisConnection');
 
 // ----- Set
 // O(1)
@@ -20,6 +20,7 @@ const throwCacheError = () => {
 
 const addUserTokenToWhitelist = async (userId, deviceId) => {
   try {
+    const redisClient = await RedisClient.getClient();
     const isUserWhitelisted = await redisClient.exists(userId);
     await redisClient.sAdd(userId, deviceId);
 
@@ -32,6 +33,7 @@ const addUserTokenToWhitelist = async (userId, deviceId) => {
 
 const removeSingleUserTokenFromWhitelist = async (userId, deviceId) => {
   try {
+    const redisClient = await RedisClient.getClient();
     await redisClient.sRem(userId, deviceId);
   } catch (err) {
     console.log(err);
@@ -41,6 +43,7 @@ const removeSingleUserTokenFromWhitelist = async (userId, deviceId) => {
 
 const removeAllUserTokensFromWhitelist = async (userId) => {
   try {
+    const redisClient = await RedisClient.getClient();
     await redisClient.del(userId);
   } catch (err) {
     console.log(err);
@@ -50,6 +53,7 @@ const removeAllUserTokensFromWhitelist = async (userId) => {
 
 const removeAllUsersTokensFromWhitelist = async () => {
   try {
+    const redisClient = await RedisClient.getClient();
     await redisClient.flushAll();
   } catch (err) {
     console.log(err);
@@ -59,6 +63,7 @@ const removeAllUsersTokensFromWhitelist = async () => {
 
 const isWhitelistedToken = async (userId, deviceId) => {
   try {
+    const redisClient = await RedisClient.getClient();
     const isWhitelisted = await redisClient.sIsMember(userId, deviceId);
     return isWhitelisted;
   } catch (err) {
