@@ -1,4 +1,4 @@
-const GoodCustomer = require('./customer');
+const GoodCustomer = require('./good-customer');
 
 const customer1 = new GoodCustomer('memo', 18, 1800, 3.5);
 
