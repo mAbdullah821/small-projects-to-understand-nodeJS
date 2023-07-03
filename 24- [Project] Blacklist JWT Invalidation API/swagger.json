@@ -250,8 +250,11 @@
             "description": "Enter user ID to invalidate single user or '-1' for all users.",
             "schema": {
               "type": "integer",
-              "minimum": -1,
-              "example": 2
+              "minimum": -1
+            },
+            "examples": {
+              "Single User": { "value": 2 },
+              "All Users": { "value": -1 }
             }
           }
         ],
