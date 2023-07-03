@@ -9,3 +9,7 @@ You can find the API documentation for this project [here](https://mabdullah821.
 ```
 
 Once you've entered the URL, press enter and the Swagger UI should display the API documentation.
+
+```
+Note: More about this project coming soon...
+```
