@@ -95,6 +95,20 @@
               }
             }
           },
+          "404": {
+            "description": "Not-Valid Path",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#components/schemas/error"
+                },
+                "example": {
+                  "status": "Error",
+                  "msg": "Not valid path!"
+                }
+              }
+            }
+          },
           "500": {
             "description": "Internal Server Error",
             "content": {
@@ -113,6 +127,12 @@
                     "value": {
                       "status": "Error",
                       "msg": "Internal Database Server error!"
+                    }
+                  },
+                  "Invalidation Failed": {
+                    "value": {
+                      "status": "Error",
+                      "msg": "Unable to invalidate token!"
                     }
                   }
                 }
