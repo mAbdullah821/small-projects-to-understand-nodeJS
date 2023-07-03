@@ -1,4 +1,8 @@
-## **Skill Builder**
+# Small Projects to Understand Node.js
+
+This is a repository of small projects that are designed to help you understand the basics of Node.js. Each project is self-contained and focuses on a specific aspect of the language or ecosystem.
+
+## Projects
 
 Small Projects for **Practice** and **Progress**
 
