@@ -137,7 +137,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#components/schemas/success"
+                  "$ref": "#components/schemas/successful"
                 },
                 "examples": {
                   "Registered User": {
