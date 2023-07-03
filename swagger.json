@@ -1,0 +1,348 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "JWT Invalidation",
+    "description": "Invalidate JWT using a database blacklist technique with whitelist caching",
+    "version": "1.0.0"
+  },
+  "servers": [
+    { "url": "http://localhost:3030/", "description": "Localhost app server" }
+  ],
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "name": "Authorization",
+        "description": "Bearer token to access these api endpoints"
+      }
+    },
+    "schemas": {
+      "successful": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "example": "Success"
+          },
+          "msg": {
+            "type": "string"
+          }
+        }
+      },
+      "error": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "example": "Error"
+          },
+          "msg": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  },
+  "paths": {
+    "/user/logout/{type}": {
+      "get": {
+        "summary": "User logout",
+        "description": "Logout user by invalid the JWT token either from a single device or from all devices",
+        "parameters": [
+          {
+            "name": "type",
+            "in": "path",
+            "required": "true",
+            "description": "Choose one type from:\r\n\r\n \tsingleDevice:-> for single device invalidation.\r\n\r\n \tallDevices:-> for all devices invalidation.",
+            "schema": {
+              "type": "string",
+              "enum": ["singleDevice", "allDevices"],
+              "example": "singleDevice"
+            }
+          }
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Logout"
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#components/schemas/error"
+                },
+                "examples": {
+                  "Invalid Token": {
+                    "value": {
+                      "status": "Error",
+                      "msg": "Invalid bearer token!"
+                    }
+                  },
+                  "Blacklisted Token": {
+                    "value": {
+                      "status": "Error",
+                      "msg": "Blacklisted token"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not-Valid Path",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#components/schemas/error"
+                },
+                "example": {
+                  "status": "Error",
+                  "msg": "Not valid path!"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#components/schemas/error"
+                },
+                "examples": {
+                  "Cache Error": {
+                    "value": {
+                      "status": "Error",
+                      "msg": "Internal Cache error!"
+                    }
+                  },
+                  "Database Error": {
+                    "value": {
+                      "status": "Error",
+                      "msg": "Internal Database Server error!"
+                    }
+                  },
+                  "Invalidation Failed": {
+                    "value": {
+                      "status": "Error",
+                      "msg": "Unable to invalidate token!"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/": {
+      "get": {
+        "summary": "Welcome user",
+        "description": "Display the user data",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#components/schemas/successful"
+                },
+                "examples": {
+                  "Registered User": {
+                    "value": {
+                      "status": "Success",
+                      "msg": "Hi, 'user' from [device] with (user) privilege :)"
+                    }
+                  },
+                  "Non Registered User": {
+                    "value": {
+                      "status": "Success",
+                      "msg": "Hi, 'stranger' from [somewhere] with (undefined) privilege :)"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#components/schemas/error"
+                },
+                "examples": {
+                  "Invalid Token": {
+                    "value": {
+                      "status": "Error",
+                      "msg": "Invalid bearer token!"
+                    }
+                  },
+                  "Blacklisted Token": {
+                    "value": {
+                      "status": "Error",
+                      "msg": "Blacklisted token"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#components/schemas/error"
+                },
+                "examples": {
+                  "Cache Error": {
+                    "value": {
+                      "status": "Error",
+                      "msg": "Internal Cache error!"
+                    }
+                  },
+                  "Database Error": {
+                    "value": {
+                      "status": "Error",
+                      "msg": "Internal Database Server error!"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/admin/invalidate/{type}/{userId}": {
+      "get": {
+        "summary": "User Invalidation by Admins",
+        "description": "Logout a user or all users by invalidating their JWT tokens.",
+        "parameters": [
+          {
+            "name": "type",
+            "in": "path",
+            "required": "true",
+            "description": "Choose one type from:\r\n\r\n \tsingleUser:-> for single user invalidation.\r\n\r\n \tallUsers:-> for all users invalidation.",
+            "schema": {
+              "type": "string",
+              "enum": ["singleUser", "allUsers"],
+              "example": "singleUser"
+            }
+          },
+          {
+            "name": "userId",
+            "in": "path",
+            "required": "true",
+            "description": "Enter user ID to invalidate single user or '-1' for all users.",
+            "schema": {
+              "type": "integer",
+              "minimum": -1
+            },
+            "examples": {
+              "Single User": { "value": 2 },
+              "All Users": { "value": -1 }
+            }
+          }
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Invalidation"
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#components/schemas/error"
+                },
+                "examples": {
+                  "Invalid Token": {
+                    "value": {
+                      "status": "Error",
+                      "msg": "Invalid bearer token!"
+                    }
+                  },
+                  "Blacklisted Token": {
+                    "value": {
+                      "status": "Error",
+                      "msg": "Blacklisted token"
+                    }
+                  },
+                  "Unauthorized User": {
+                    "value": {
+                      "status": "Error",
+                      "msg": "User unauthorized for these routes!"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not-Valid Path",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#components/schemas/error"
+                },
+                "example": {
+                  "status": "Error",
+                  "msg": "Not valid path!"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#components/schemas/error"
+                },
+                "examples": {
+                  "Cache Error": {
+                    "value": {
+                      "status": "Error",
+                      "msg": "Internal Cache error!"
+                    }
+                  },
+                  "Database Error": {
+                    "value": {
+                      "status": "Error",
+                      "msg": "Internal Database Server error!"
+                    }
+                  },
+                  "Invalidation Failed": {
+                    "value": {
+                      "status": "Error",
+                      "msg": "Unable to invalidate token!"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
