@@ -226,6 +226,120 @@
           }
         }
       }
+    },
+    "/admin/invalidate/{type}/{userId}": {
+      "get": {
+        "summary": "User Invalidation by Admins",
+        "description": "Logout a user or all users by invalidating their JWT tokens.",
+        "parameters": [
+          {
+            "name": "type",
+            "in": "path",
+            "required": "true",
+            "description": "Choose one type from:\r\n\r\n \tsingleUser:-> for single user invalidation.\r\n\r\n \tallUsers:-> for all users invalidation.",
+            "schema": {
+              "type": "string",
+              "enum": ["singleUser", "allUsers"],
+              "example": "singleUser"
+            }
+          },
+          {
+            "name": "userId",
+            "in": "path",
+            "required": "true",
+            "description": "Enter user ID to invalidate single user or '-1' for all users.",
+            "schema": {
+              "type": "integer",
+              "minimum": -1,
+              "example": 2
+            }
+          }
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Invalidation"
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#components/schemas/error"
+                },
+                "examples": {
+                  "Invalid Token": {
+                    "value": {
+                      "status": "Error",
+                      "msg": "Invalid bearer token!"
+                    }
+                  },
+                  "Blacklisted Token": {
+                    "value": {
+                      "status": "Error",
+                      "msg": "Blacklisted token"
+                    }
+                  },
+                  "Unauthorized User": {
+                    "value": {
+                      "status": "Error",
+                      "msg": "User unauthorized for these routes!"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not-Valid Path",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#components/schemas/error"
+                },
+                "example": {
+                  "status": "Error",
+                  "msg": "Not valid path!"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#components/schemas/error"
+                },
+                "examples": {
+                  "Cache Error": {
+                    "value": {
+                      "status": "Error",
+                      "msg": "Internal Cache error!"
+                    }
+                  },
+                  "Database Error": {
+                    "value": {
+                      "status": "Error",
+                      "msg": "Internal Database Server error!"
+                    }
+                  },
+                  "Invalidation Failed": {
+                    "value": {
+                      "status": "Error",
+                      "msg": "Unable to invalidate token!"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
     }
   }
 }
