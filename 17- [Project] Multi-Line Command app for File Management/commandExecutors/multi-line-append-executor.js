@@ -4,88 +4,124 @@ const {
   WATCHED_DIRECTORY,
   MULTI_LINE_APPEND_COMMAND_FILE,
   ADD_TO_FILE_COMMAND,
+  HIGH_WATER_MARK_FOR_READ_MULTILINE,
+  END_LINE_PATTERN,
 } = require('../utils/config');
 
-const { addToFile } = require('../controllers/file-manipulation-controllers');
-
 class MultiLineAppendExecutor {
+  #readFile = null;
+  #writeFile = null;
+  #readableStream = null;
+  #writeableStream = null;
+  #isCommandInProgress = false;
+  // A temporary container is used to reconstruct the full command from its chunks, which may be larger than the highWaterMark.
+  #tmpChunk = null;
+
   constructor() {
-    this._fileHandler = null;
-    this._isCommandInProgress = false;
+    this.#readFile = WATCHED_DIRECTORY + `/${MULTI_LINE_APPEND_COMMAND_FILE}`;
   }
 
-  async initializeFileHandler() {
-    if (this._fileHandler) {
-      console.error('The file is already initialized!');
-      return;
-    }
+  #initializeReadableStream() {
+    this.#readableStream = fs.createReadStream(this.#readFile, {
+      highWaterMark: HIGH_WATER_MARK_FOR_READ_MULTILINE,
+    });
 
-    // Used to bind `this` with a function call later on.
-    const tempThis = this;
+    this.#readableStream.on('end', () => {
+      this.#isCommandInProgress = false;
+      this.#writeableStream?.end();
 
-    try {
-      this._fileHandler = await fs.promises.open(
-        WATCHED_DIRECTORY + `/${MULTI_LINE_APPEND_COMMAND_FILE}`
-      );
+      if (this.#tmpChunk) {
+        this.#handleCommandIsNotValid(this.#tmpChunk);
+        return;
+      }
 
-      this._fileHandler.on('change', async (command, cb) => {
-        let validCommand = false;
-
-        // add to the file <relative_path> content: <multi_line_content>
-        if (command.startsWith(ADD_TO_FILE_COMMAND)) {
-          validCommand = true;
-          await this._handleAddToFileCommand(command);
-        }
-
-        if (!validCommand) {
-          this._handleCommandIsNotValid(command);
-        }
-
-        cb.call(tempThis);
-      });
-    } catch (err) {
-      console.error(`Error opening file, ${err}`);
-    }
+      console.log(`Content added successfully! to the file ${this.#writeFile}`);
+    });
   }
 
-  async executeCommands() {
-    if (this._isCommandInProgress) {
+  #initializeWritableStream(path) {
+    this.#writeableStream = fs.createWriteStream(path, {
+      flags: 'a',
+    });
+
+    this.#writeableStream.on('drain', () => {
+      this.#readableStream.resume();
+    });
+  }
+
+  executeCommand() {
+    if (this.#isCommandInProgress) {
       console.error('Wait for previous command to finish!');
       return;
     }
 
-    this._isCommandInProgress = true;
+    this.#initializeReadableStream();
+    this.#isCommandInProgress = true;
+    let checkOnce = false;
+    this.#tmpChunk = '';
 
-    const offset = 0;
-    const length = (await this._fileHandler.stat()).size;
-    const position = 0;
-    const buffer = Buffer.alloc(length);
+    this.#readableStream.on('data', (chunk) => {
+      if (!checkOnce) {
+        chunk = this.#tmpChunk + chunk.toString();
+        if (chunk.indexOf(' content: ' + END_LINE_PATTERN) === -1) {
+          this.#tmpChunk = chunk;
+          return;
+        }
 
-    await this._fileHandler.read(buffer, offset, length, position);
+        chunk = this.#processTheChunk(chunk);
+        if (chunk === null) return;
 
-    const command = buffer.toString('utf8');
+        checkOnce = true;
+        this.#tmpChunk = '';
+      }
 
-    this._fileHandler.emit('change', command, () => {
-      this._isCommandInProgress = false;
+      const moreWrites = this.#writeableStream.write(chunk);
+      if (!moreWrites) this.#readableStream.pause();
     });
   }
 
-  async _handleAddToFileCommand(command) {
-    const indexOf = ' content: ';
-    const _idx = command.indexOf(indexOf);
-    const path = command.substring(ADD_TO_FILE_COMMAND.length + 1, _idx);
-    const content = command.substring(_idx + indexOf.length);
+  #processTheChunk(chunk) {
+    let validCommand = false;
 
-    await addToFile(ROOT_PATH + path, content);
+    if (chunk.startsWith(ADD_TO_FILE_COMMAND)) {
+      validCommand = true;
+      const [commandLength, path] = this.#getCommandInfo(chunk);
+      chunk = chunk.slice(commandLength);
+
+      this.#writeFile = ROOT_PATH + path;
+      this.#initializeWritableStream(this.#writeFile);
+    }
+
+    if (!validCommand) {
+      this.#readableStream.destroy();
+      this.#isCommandInProgress = false;
+      this.#handleCommandIsNotValid(chunk);
+
+      chunk = null;
+    }
+
+    return chunk;
   }
 
-  _handleCommandIsNotValid(command) {
+  // add to the file <relative_path> content: <multi_line_content>
+  #getCommandInfo(command) {
+    const endLineLength = END_LINE_PATTERN.length;
+    const indexOfContent = ' content: ';
+    const idx = command.indexOf(indexOfContent);
+    const path = command.substring(ADD_TO_FILE_COMMAND.length + 1, idx);
+    const commandLength = idx + indexOfContent.length + endLineLength;
+
+    return [commandLength, path];
+  }
+
+  #handleCommandIsNotValid(command) {
     console.log(`The command [${command}] is not a valid command`);
     console.log('Valid command is: ');
     console.log(`
-      +-----------------------------------------------------------------+
-      │ @> add to the file <relative_path> content: <multi_line_content>│
-      +-----------------------------------------------------------------+
+      +----------------------------------------------------------------------+
+      │ @> add to the file <relative_path> content: <Must [space + NewLine]> |
+      |  <multi_line_content>                                                │
+      +----------------------------------------------------------------------+
     `);
   }
 }

@@ -1,9 +1,13 @@
 create a file /hello.txt
-add to the file /hello.txt content: hello world1
-add to the file /hello.txt content: hello world12
-add to the file /hello.txt content: hello world123
-add to the file /hello.txt content: hello world1234
-add to the file /hello.txt content: hello world12345
+add to the file /hello.txt content: hello world_1
+add to the file /hello.txt content: hello world_2
+add to the file /hello.txt content: hello world_3
+add to the file /hello.txt content: hello world_4
+add to the file /hello.txt content: hello world_5
+add to the file /hello.txt content: hello world_6
+add to the file /hello.txt content: hello world_7
+add to the file /hello.txt content: hello world_8
+add to the file /hello.txt content: hello world_9
 rename the file /hello.txt to /helloPro.txt
 rename the file /helloPro.txt to /helloPro2.txt
 rename the file /helloPro2.txt to /helloPro3.txt

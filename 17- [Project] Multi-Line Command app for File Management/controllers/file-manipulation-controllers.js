@@ -1,4 +1,5 @@
 const fs = require('fs/promises');
+const { END_LINE_PATTERN } = require('../utils/config');
 
 const createFile = async (path) => {
   try {
@@ -51,7 +52,7 @@ const renameFile = async (oldPath, newPath) => {
 const addToFile = async (path, content) => {
   try {
     const fileHandler = await fs.open(path, 'a');
-    await fileHandler.appendFile(content);
+    await fileHandler.appendFile(content + END_LINE_PATTERN);
     fileHandler.close();
     console.log(`Content added successfully! to the file ${path}`);
   } catch (err) {

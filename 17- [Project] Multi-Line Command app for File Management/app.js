@@ -9,9 +9,6 @@ const {
 } = require('./utils/config');
 
 (async () => {
-  await singleLineCommandsExecutor.initializeFileHandler();
-  await multiLineAppendExecutor.initializeFileHandler();
-
   const watcher = chokidar.watch(WATCHED_DIRECTORY);
   console.log(`the directory: [${WATCHED_DIRECTORY}] is being watched...`);
 
@@ -21,7 +18,7 @@ const {
     }
 
     if (path.includes(MULTI_LINE_APPEND_COMMAND_FILE)) {
-      await multiLineAppendExecutor.executeCommands();
+      multiLineAppendExecutor.executeCommand();
     }
   });
 })();
