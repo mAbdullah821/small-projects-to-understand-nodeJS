@@ -6,7 +6,9 @@ const {
   ADD_TO_FILE_COMMAND,
   HIGH_WATER_MARK_FOR_READ_MULTILINE,
   END_LINE_PATTERN,
+  MAX_COMMAND_LENGTH,
 } = require('../utils/config');
+const limitStringLength = require('../utils/limitStringLength');
 
 class MultiLineAppendExecutor {
   #readFile = null;
@@ -27,16 +29,35 @@ class MultiLineAppendExecutor {
     });
 
     this.#readableStream.on('end', () => {
-      this.#isCommandInProgress = false;
-      this.#writeableStream?.end();
-
-      if (this.#tmpChunk) {
-        this.#handleCommandIsNotValid(this.#tmpChunk);
-        return;
+      this.#endCommandExecution();
+      const hasError = this.#handleCommandError();
+      if (!hasError) {
+        console.log(
+          `Content added successfully! to the file ${this.#writeFile}`
+        );
       }
-
-      console.log(`Content added successfully! to the file ${this.#writeFile}`);
     });
+  }
+
+  #endCommandExecution() {
+    this.#readableStream.destroy();
+    this.#writeableStream?.end();
+    this.#isCommandInProgress = false;
+  }
+
+  #handleCommandError() {
+    if (this.#tmpChunk) {
+      if (this.#tmpChunk.length >= MAX_COMMAND_LENGTH) {
+        console.error(
+          `------ +++ <> +++ ------\n> Your command length is very big.\n> Max allowed command length is: ${MAX_COMMAND_LENGTH}\n`
+        );
+      }
+      this.#handleCommandIsNotValid(this.#tmpChunk);
+
+      return true;
+    }
+
+    return false;
   }
 
   #initializeWritableStream(path) {
@@ -63,8 +84,12 @@ class MultiLineAppendExecutor {
     this.#readableStream.on('data', (chunk) => {
       if (!checkOnce) {
         chunk = this.#tmpChunk + chunk.toString();
+
         if (chunk.indexOf(' content: ' + END_LINE_PATTERN) === -1) {
           this.#tmpChunk = chunk;
+          if (this.#tmpChunk.length >= MAX_COMMAND_LENGTH) {
+            this.#readableStream.emit('end');
+          }
           return;
         }
 
@@ -81,25 +106,17 @@ class MultiLineAppendExecutor {
   }
 
   #processTheChunk(chunk) {
-    let validCommand = false;
+    const [commandLength, path] = this.#getCommandInfo(chunk);
 
-    if (chunk.startsWith(ADD_TO_FILE_COMMAND)) {
-      validCommand = true;
-      const [commandLength, path] = this.#getCommandInfo(chunk);
-      chunk = chunk.slice(commandLength);
-
-      this.#writeFile = ROOT_PATH + path;
-      this.#initializeWritableStream(this.#writeFile);
+    if (!chunk.startsWith(ADD_TO_FILE_COMMAND) || !commandLength) {
+      this.#tmpChunk = chunk;
+      this.#readableStream.emit('end');
+      return null;
     }
 
-    if (!validCommand) {
-      this.#readableStream.destroy();
-      this.#isCommandInProgress = false;
-      this.#handleCommandIsNotValid(chunk);
-
-      chunk = null;
-    }
-
+    chunk = chunk.slice(commandLength);
+    this.#writeFile = ROOT_PATH + path;
+    this.#initializeWritableStream(this.#writeFile);
     return chunk;
   }
 
@@ -108,6 +125,8 @@ class MultiLineAppendExecutor {
     const endLineLength = END_LINE_PATTERN.length;
     const indexOfContent = ' content: ';
     const idx = command.indexOf(indexOfContent);
+    if (idx === -1) return [];
+
     const path = command.substring(ADD_TO_FILE_COMMAND.length + 1, idx);
     const commandLength = idx + indexOfContent.length + endLineLength;
 
@@ -115,7 +134,9 @@ class MultiLineAppendExecutor {
   }
 
   #handleCommandIsNotValid(command) {
-    console.log(`The command [${command}] is not a valid command`);
+    console.log(
+      `The command [${limitStringLength(command)}] is not a valid command`
+    );
     console.log('Valid command is: ');
     console.log(`
       +----------------------------------------------------------------------+
