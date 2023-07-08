@@ -34,6 +34,12 @@ class SingleLineCommandsExecutor {
       return;
     }
 
+    console.log(`\n
+        +-\x1b[36m--------------------------------------\x1b[0m-+
+        |           Starting Execution           |
+        +-\x1b[36m--------------------------------------\x1b[0m-+
+    `);
+
     this.#areCommandsInProgress = true;
 
     while (this.#readLine.hasNext()) {
