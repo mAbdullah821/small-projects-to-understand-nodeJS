@@ -7,17 +7,21 @@ class ReadLine {
   #readableStream = null;
   #readLineStreamer = null;
   #pushedLineEmitter = null;
-  #lines = [];
+  #lines = null;
+  #isClosed = null;
 
   constructor(file, highWaterMark = HIGH_WATER_MARK_FOR_READ_LINE) {
     this.file = file;
     this.highWaterMark = highWaterMark;
     this.#pushedLineEmitter = new Emitter();
-    this.#initializeStreamers();
+    this.reset();
   }
 
   hasNext() {
-    return this.#lines.length || this.#readableStream.readable ? true : false;
+    return (this.#lines.length || this.#readableStream.readable) &&
+      !this.#isClosed
+      ? true
+      : false;
   }
 
   async getNext() {
@@ -25,7 +29,22 @@ class ReadLine {
   }
 
   reset() {
+    this.#initializeVariables();
     this.#initializeStreamers();
+  }
+
+  end() {
+    // Prevents readLine 'line' event from adding new lines after .close().
+    this.#isClosed = true;
+    this.#lines = [];
+
+    this.#readLineStreamer.close();
+    this.#readableStream.destroy();
+  }
+
+  #initializeVariables() {
+    this.#isClosed = false;
+    this.#lines = [];
   }
 
   #initializeStreamers() {
