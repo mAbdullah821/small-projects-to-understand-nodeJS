@@ -23,6 +23,43 @@ class MultiLineAppendExecutor {
     this.#readFile = WATCHED_DIRECTORY + `/${MULTI_LINE_APPEND_COMMAND_FILE}`;
   }
 
+  executeCommand() {
+    if (this.#isCommandInProgress) {
+      console.error('Wait for previous command to finish!');
+      return;
+    }
+
+    this.#initializeReadableStream();
+    this.#isCommandInProgress = true;
+    let checkOnce = false;
+    this.#tmpChunk = '';
+
+    this.#readableStream.on('data', (chunk) => {
+      if (!checkOnce) {
+        chunk = this.#tmpChunk + chunk.toString();
+
+        if (chunk.indexOf(' content: ' + END_LINE_PATTERN) === -1) {
+          this.#tmpChunk = chunk;
+
+          if (this.#tmpChunk.length > MAX_COMMAND_LENGTH) {
+            this.#readableStream.emit('end');
+          }
+
+          return;
+        }
+
+        chunk = this.#processTheChunk(chunk);
+        if (chunk === null) return;
+
+        checkOnce = true;
+        this.#tmpChunk = '';
+      }
+
+      const moreWrites = this.#writeableStream.write(chunk);
+      if (!moreWrites) this.#readableStream.pause();
+    });
+  }
+
   #initializeReadableStream() {
     this.#readableStream = fs.createReadStream(this.#readFile, {
       highWaterMark: HIGH_WATER_MARK_FOR_READ_MULTILINE,
@@ -31,6 +68,7 @@ class MultiLineAppendExecutor {
     this.#readableStream.on('end', () => {
       this.#endCommandExecution();
       const hasError = this.#handleCommandError();
+
       if (!hasError) {
         console.log(
           `Content added successfully! to the file ${this.#writeFile}`
@@ -47,9 +85,11 @@ class MultiLineAppendExecutor {
 
   #handleCommandError() {
     if (this.#tmpChunk) {
-      if (this.#tmpChunk.length >= MAX_COMMAND_LENGTH) {
+      if (this.#tmpChunk.length > MAX_COMMAND_LENGTH) {
         console.error(
-          `------ +++ <> +++ ------\n> Your command length is very big.\n> Max allowed command length is: ${MAX_COMMAND_LENGTH}\n`
+          `------ +++ <> +++ ------\n> Your command length is very big: >= ${
+            this.#tmpChunk.length
+          }.\n> Max allowed command length is: ${MAX_COMMAND_LENGTH}\n`
         );
       }
       this.#handleCommandIsNotValid(this.#tmpChunk);
@@ -70,46 +110,15 @@ class MultiLineAppendExecutor {
     });
   }
 
-  executeCommand() {
-    if (this.#isCommandInProgress) {
-      console.error('Wait for previous command to finish!');
-      return;
-    }
-
-    this.#initializeReadableStream();
-    this.#isCommandInProgress = true;
-    let checkOnce = false;
-    this.#tmpChunk = '';
-
-    this.#readableStream.on('data', (chunk) => {
-      if (!checkOnce) {
-        chunk = this.#tmpChunk + chunk.toString();
-
-        if (chunk.indexOf(' content: ' + END_LINE_PATTERN) === -1) {
-          this.#tmpChunk = chunk;
-          if (this.#tmpChunk.length >= MAX_COMMAND_LENGTH) {
-            this.#readableStream.emit('end');
-          }
-          return;
-        }
-
-        chunk = this.#processTheChunk(chunk);
-        if (chunk === null) return;
-
-        checkOnce = true;
-        this.#tmpChunk = '';
-      }
-
-      const moreWrites = this.#writeableStream.write(chunk);
-      if (!moreWrites) this.#readableStream.pause();
-    });
-  }
-
   #processTheChunk(chunk) {
     const [commandLength, path] = this.#getCommandInfo(chunk);
 
-    if (!chunk.startsWith(ADD_TO_FILE_COMMAND) || !commandLength) {
-      this.#tmpChunk = chunk;
+    if (
+      !chunk.startsWith(ADD_TO_FILE_COMMAND) ||
+      !commandLength ||
+      commandLength > MAX_COMMAND_LENGTH
+    ) {
+      this.#tmpChunk = chunk.slice(0, commandLength ?? chunk.length);
       this.#readableStream.emit('end');
       return null;
     }
