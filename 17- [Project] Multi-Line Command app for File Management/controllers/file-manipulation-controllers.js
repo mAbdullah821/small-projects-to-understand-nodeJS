@@ -1,11 +1,12 @@
 const fs = require('fs/promises');
 const { END_LINE_PATTERN } = require('../utils/config');
+const limitStringLength = require('../utils/limitStringLength');
 
 const createFile = async (path) => {
   try {
     const fileHandler = await fs.open(path);
     fileHandler.close();
-    console.error(`The file ${path} is already exists`);
+    console.error(`The file ${limitStringLength(path)} is already exists`);
   } catch (err) {
     if (err.code === 'ENOENT') {
       try {
@@ -13,7 +14,9 @@ const createFile = async (path) => {
         const fileHandler = await fs.open(path, 'w');
         fileHandler.close();
 
-        console.log(`The file ${path} created successfully!`);
+        console.log(
+          `The file ${limitStringLength(path)} created successfully!`
+        );
       } catch (error) {
         console.error(`Error creating file: ${error}`);
       }
@@ -26,10 +29,12 @@ const createFile = async (path) => {
 const deleteFile = async (path) => {
   try {
     await fs.unlink(path);
-    console.log(`The file ${path} was deleted successfully!`);
+    console.log(
+      `The file ${limitStringLength(path)} was deleted successfully!`
+    );
   } catch (err) {
     if (err.code === 'ENOENT') {
-      console.error(`The file ${path} is not exists`);
+      console.error(`The file ${limitStringLength(path)} is not exists`);
     } else {
       console.error(`Error deleting file: ${err}`);
     }
@@ -39,10 +44,14 @@ const deleteFile = async (path) => {
 const renameFile = async (oldPath, newPath) => {
   try {
     await fs.rename(oldPath, newPath);
-    console.log(`Renamed file from '${oldPath}' to '${newPath}' successfully!`);
+    console.log(
+      `Renamed file from '${limitStringLength(
+        oldPath
+      )}' to '${limitStringLength(newPath)}' successfully!`
+    );
   } catch (err) {
     if (err.code === 'ENOENT') {
-      console.error(`The file ${err.path} not found`);
+      console.error(`The file ${limitStringLength(err.path)} not found`);
     } else {
       console.error(`Error renaming file: ${err}`);
     }
@@ -54,10 +63,12 @@ const addToFile = async (path, content) => {
     const fileHandler = await fs.open(path, 'a');
     await fileHandler.appendFile(content + END_LINE_PATTERN);
     fileHandler.close();
-    console.log(`Content added successfully! to the file ${path}`);
+    console.log(
+      `Content added successfully! to the file ${limitStringLength(path)}`
+    );
   } catch (err) {
     if (err.code === 'ENOENT') {
-      console.error(`The file ${path} not found`);
+      console.error(`The file ${limitStringLength(path)} not found`);
     } else {
       console.error(`Error adding content to file: ${err}`);
     }
