@@ -15,7 +15,9 @@ const createFile = async (path) => {
         fileHandler.close();
 
         console.log(
-          `The file ${limitStringLength(path)} created successfully!`
+          `The file ${limitStringLength(
+            path
+          )} created \x1b[32msuccessfully!\x1b[0m`
         );
       } catch (error) {
         console.error(`Error creating file: ${error}`);
@@ -30,7 +32,9 @@ const deleteFile = async (path) => {
   try {
     await fs.unlink(path);
     console.log(
-      `The file ${limitStringLength(path)} was deleted successfully!`
+      `The file ${limitStringLength(
+        path
+      )} was deleted \x1b[32msuccessfully!\x1b[0m`
     );
   } catch (err) {
     if (err.code === 'ENOENT') {
@@ -47,7 +51,7 @@ const renameFile = async (oldPath, newPath) => {
     console.log(
       `Renamed file from '${limitStringLength(
         oldPath
-      )}' to '${limitStringLength(newPath)}' successfully!`
+      )}' to '${limitStringLength(newPath)}' \x1b[32msuccessfully!\x1b[0m`
     );
   } catch (err) {
     if (err.code === 'ENOENT') {
@@ -64,7 +68,9 @@ const addToFile = async (path, content) => {
     await fileHandler.appendFile(content + END_LINE_PATTERN);
     fileHandler.close();
     console.log(
-      `Content added successfully! to the file ${limitStringLength(path)}`
+      `Content added \x1b[32msuccessfully!\x1b[0m to the file ${limitStringLength(
+        path
+      )}`
     );
   } catch (err) {
     if (err.code === 'ENOENT') {
