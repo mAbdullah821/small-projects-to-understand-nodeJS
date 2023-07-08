@@ -8,9 +8,9 @@ const WATCHED_DIRECTORY = ROOT_PATH + '/toWatch';
 const SINGLE_LINE_COMMANDS_FILE = 'single-Line commands.txt';
 const MULTI_LINE_APPEND_COMMAND_FILE = 'multi-line append command.txt';
 
+const END_LINE_PATTERN = '\r\n';
 const HIGH_WATER_MARK_FOR_READ_LINE = 16 * 1024; // 16 KB
 const HIGH_WATER_MARK_FOR_READ_MULTILINE = 16 * 1024; // 16 KB
-const END_LINE_PATTERN = '\r\n';
 const MAX_COMMAND_LENGTH = 4 * 1024; // 4 KB
 const MAX_COMMAND_DISPLAY_LENGTH = 24;
 
