@@ -29,6 +29,12 @@ class MultiLineAppendExecutor {
       return;
     }
 
+    console.log(`\n
+        +-\x1b[36m--------------------------------------\x1b[0m-+
+        |           Starting Execution           |
+        +-\x1b[36m--------------------------------------\x1b[0m-+
+    `);
+
     this.#initializeReadableStream();
     this.#isCommandInProgress = true;
     let checkOnce = false;
@@ -71,7 +77,9 @@ class MultiLineAppendExecutor {
 
       if (!hasError) {
         console.log(
-          `Content added successfully! to the file ${this.#writeFile}`
+          `Content added \x1b[32msuccessfully!\x1b[0m to the file ${
+            this.#writeFile
+          }`
         );
       }
     });
@@ -87,9 +95,9 @@ class MultiLineAppendExecutor {
     if (this.#tmpChunk) {
       if (this.#tmpChunk.length > MAX_COMMAND_LENGTH) {
         console.error(
-          `------ +++ <> +++ ------\n> Your command length is very big: >= ${
+          `\x1b[31m------ +++ <> +++ ------\x1b[0m\n> Your command length is very big: \x1b[31m>=${
             this.#tmpChunk.length
-          }.\n> Max allowed command length is: ${MAX_COMMAND_LENGTH}\n`
+          }\x1b[0m.\n> Max allowed command length is: \x1b[32m${MAX_COMMAND_LENGTH} \x1b[0m.\n`
         );
       }
       this.#handleCommandIsNotValid(this.#tmpChunk);
@@ -144,9 +152,12 @@ class MultiLineAppendExecutor {
 
   #handleCommandIsNotValid(command) {
     console.log(
-      `The command [${limitStringLength(command)}] is not a valid command`
+      `The command [${limitStringLength(
+        command
+      )}] \x1b[31mis not a valid command!\x1b[0m`
     );
-    console.log('Valid command is: ');
+    console.log('\x1b[32m%s\x1b[0m', 'Valid command is: ');
+
     console.log(`
       +----------------------------------------------------------------------+
       │ @> add to the file <relative_path> content: <Must [space + NewLine]> |
