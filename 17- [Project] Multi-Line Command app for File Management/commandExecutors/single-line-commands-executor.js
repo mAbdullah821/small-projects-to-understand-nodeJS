@@ -7,6 +7,7 @@ const {
   DELETE_FILE_COMMAND,
   RENAME_FILE_COMMAND,
   ADD_TO_FILE_COMMAND,
+  MAX_COMMAND_LENGTH,
 } = require('../utils/config');
 
 const {
@@ -15,6 +16,7 @@ const {
   renameFile,
   addToFile,
 } = require('../controllers/file-manipulation-controllers');
+const limitStringLength = require('../utils/limitStringLength');
 
 class SingleLineCommandsExecutor {
   #file = null;
@@ -36,11 +38,29 @@ class SingleLineCommandsExecutor {
 
     while (this.#readLine.hasNext()) {
       const command = await this.#readLine.getNext();
+
+      if (command.length > MAX_COMMAND_LENGTH) {
+        this.#endCommandsExecutionAndHandleInvalid(command);
+        break;
+      }
+
       await this.#executeOneCommand(command);
     }
 
     this.#areCommandsInProgress = false;
     this.#readLine.reset();
+  }
+
+  #endCommandsExecutionAndHandleInvalid(command) {
+    this.#readLine.end();
+
+    if (command.length > MAX_COMMAND_LENGTH) {
+      console.log(
+        `\x1b[31m------ +++ <> +++ ------\x1b[0m\n> Your command length is very big: \x1b[31m=${command.length}\x1b[0m.\n> Max allowed command length is: \x1b[32m${MAX_COMMAND_LENGTH} \x1b[0m.\n`
+      );
+    }
+
+    this.#handleCommandIsNotValid(command);
   }
 
   async #executeOneCommand(command) {
@@ -67,7 +87,7 @@ class SingleLineCommandsExecutor {
     }
 
     if (!validCommand) {
-      this.#handleCommandIsNotValid(command);
+      this.#endCommandsExecutionAndHandleInvalid(command);
     }
   }
 
@@ -106,16 +126,22 @@ class SingleLineCommandsExecutor {
   }
 
   #handleCommandIsNotValid(command) {
-    console.log(`The command [${command}] is not a valid command!`);
-    console.log('Valid commands are: ');
-    console.log(`
+    console.log(
+      `The command [${limitStringLength(
+        command
+      )}] \x1b[31mis not a valid command!\x1b[0m`
+    );
+    console.log('\x1b[32m%s\x1b[0m', 'Valid commands are: ');
+    console.log(
+      `
       +---------------------------------------------------------------+
       │ @> create a file <relative_path>                              │
       │ @> delete the file <relative_path>                            │
       │ @> rename the file <relative_oldPath> to <relative_newPath>   │
       │ @> add to the file <relative_path> content: <one_line_content>│
       +---------------------------------------------------------------+
-    `);
+    `
+    );
   }
 }
 
