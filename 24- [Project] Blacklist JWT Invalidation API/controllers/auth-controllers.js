@@ -7,6 +7,9 @@ const jwtInvalidationService = require('../services/jwt-invalidation-service');
 const signup = async (req, res, next) => {
   try {
     const { username } = req.body;
+
+    if (!username) throw new Error('username is not provided!');
+
     const userId = await userModel.addNewUser(username);
     res.status(201).send({
       status: 'Success',
@@ -19,6 +22,19 @@ const signup = async (req, res, next) => {
   } catch (err) {
     console.log(err);
     req.statusCode = 500;
+
+    if (
+      err.message.startsWith('username') ||
+      err.message.startsWith('Duplicate entry')
+    ) {
+      req.statusCode = 400;
+
+      if (err.message.startsWith('Duplicate entry')) {
+        err.message =
+          'User already registered. Please choose a different username.';
+      }
+    }
+
     next(err);
   }
 };
@@ -26,6 +42,14 @@ const signup = async (req, res, next) => {
 const login = async (req, res, next) => {
   try {
     const { username, deviceName } = req.body;
+
+    if (!username || !deviceName) {
+      req.statusCode = 400;
+      throw new Error(
+        "Missing required attributes. Please provide 'username' and 'deviceName'."
+      );
+    }
+
     const user = await userModel.getUserFromUsername(username);
 
     if (!user) {
