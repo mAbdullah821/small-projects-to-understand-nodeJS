@@ -18,6 +18,37 @@
       }
     },
     "schemas": {
+      "signup": {
+        "type": "object",
+        "properties": {
+          "username": {
+            "type": "string",
+            "example": "newUser"
+          }
+        },
+        "required": ["username"]
+      },
+      "successfulSingup": {
+        "allOf": [
+          { "$ref": "#components/schemas/successful" },
+          {
+            "type": "object",
+            "properties": {
+              "user": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  },
+                  "username": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        ]
+      },
       "successful": {
         "type": "object",
         "properties": {
@@ -45,66 +76,59 @@
     }
   },
   "paths": {
-    "/user/logout/{type}": {
-      "get": {
-        "summary": "User logout",
-        "description": "Logout user by invalid the JWT token either from a single device or from all devices",
-        "parameters": [
-          {
-            "name": "type",
-            "in": "path",
-            "required": "true",
-            "description": "Choose one type from:\r\n\r\n \tsingleDevice:-> for single device invalidation.\r\n\r\n \tallDevices:-> for all devices invalidation.",
-            "schema": {
-              "type": "string",
-              "enum": ["singleDevice", "allDevices"],
-              "example": "singleDevice"
+    "/signup": {
+      "post": {
+        "summary": "Register a new user",
+        "requestBody": {
+          "description": "Use a unique username to register",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#components/schemas/signup"
+              }
             }
           }
-        ],
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ],
+        },
         "responses": {
-          "204": {
-            "description": "Successful Logout"
+          "201": {
+            "description": "Account created successfully :)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#components/schemas/successfulSingup"
+                },
+                "example": {
+                  "status": "Success",
+                  "msg": "Account created successfully :)",
+                  "user": {
+                    "id": "2",
+                    "username": "user"
+                  }
+                }
+              }
+            }
           },
-          "401": {
-            "description": "Unauthorized",
+          "400": {
+            "description": "Bad request",
             "content": {
               "application/json": {
                 "schema": {
                   "$ref": "#components/schemas/error"
                 },
                 "examples": {
-                  "Invalid Token": {
+                  "Missing required attribute": {
                     "value": {
                       "status": "Error",
-                      "msg": "Invalid bearer token!"
+                      "msg": "username is not provided!"
                     }
                   },
-                  "Blacklisted Token": {
+                  "User Already Registered": {
                     "value": {
                       "status": "Error",
-                      "msg": "Blacklisted token"
+                      "msg": "User already registered. Please choose a different username."
                     }
                   }
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Not-Valid Path",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#components/schemas/error"
-                },
-                "example": {
-                  "status": "Error",
-                  "msg": "Not valid path!"
                 }
               }
             }
@@ -117,22 +141,10 @@
                   "$ref": "#components/schemas/error"
                 },
                 "examples": {
-                  "Cache Error": {
-                    "value": {
-                      "status": "Error",
-                      "msg": "Internal Cache error!"
-                    }
-                  },
                   "Database Error": {
                     "value": {
                       "status": "Error",
                       "msg": "Internal Database Server error!"
-                    }
-                  },
-                  "Invalidation Failed": {
-                    "value": {
-                      "status": "Error",
-                      "msg": "Unable to invalidate token!"
                     }
                   }
                 }
@@ -227,6 +239,103 @@
         }
       }
     },
+    "/user/logout/{type}": {
+      "get": {
+        "summary": "User logout",
+        "description": "Logout user by invalid the JWT token either from a single device or from all devices",
+        "parameters": [
+          {
+            "name": "type",
+            "in": "path",
+            "required": true,
+            "description": "Choose one type from:\r\n\r\n \tsingleDevice:-> for single device invalidation.\r\n\r\n \tallDevices:-> for all devices invalidation.",
+            "schema": {
+              "type": "string",
+              "enum": ["singleDevice", "allDevices"],
+              "example": "singleDevice"
+            }
+          }
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Logout"
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#components/schemas/error"
+                },
+                "examples": {
+                  "Invalid Token": {
+                    "value": {
+                      "status": "Error",
+                      "msg": "Invalid bearer token!"
+                    }
+                  },
+                  "Blacklisted Token": {
+                    "value": {
+                      "status": "Error",
+                      "msg": "Blacklisted token"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not-Valid Path",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#components/schemas/error"
+                },
+                "example": {
+                  "status": "Error",
+                  "msg": "Not valid path!"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#components/schemas/error"
+                },
+                "examples": {
+                  "Cache Error": {
+                    "value": {
+                      "status": "Error",
+                      "msg": "Internal Cache error!"
+                    }
+                  },
+                  "Database Error": {
+                    "value": {
+                      "status": "Error",
+                      "msg": "Internal Database Server error!"
+                    }
+                  },
+                  "Invalidation Failed": {
+                    "value": {
+                      "status": "Error",
+                      "msg": "Unable to invalidate token!"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/admin/invalidate/{type}/{userId}": {
       "get": {
         "summary": "User Invalidation by Admins",
@@ -235,18 +344,17 @@
           {
             "name": "type",
             "in": "path",
-            "required": "true",
+            "required": true,
             "description": "Choose one type from:\r\n\r\n \tsingleUser:-> for single user invalidation.\r\n\r\n \tallUsers:-> for all users invalidation.",
             "schema": {
               "type": "string",
-              "enum": ["singleUser", "allUsers"],
-              "example": "singleUser"
+              "enum": ["singleUser", "allUsers"]
             }
           },
           {
             "name": "userId",
             "in": "path",
-            "required": "true",
+            "required": true,
             "description": "Enter user ID to invalidate single user or '-1' for all users.",
             "schema": {
               "type": "integer",
