@@ -28,6 +28,18 @@
         },
         "required": ["username"]
       },
+      "login": {
+        "type": "object",
+        "properties": {
+          "username": {
+            "type": "string"
+          },
+          "deviceName": {
+            "type": "string"
+          }
+        },
+        "required": ["username", "deviceName"]
+      },
       "successfulSingup": {
         "allOf": [
           { "$ref": "#components/schemas/successful" },
@@ -44,6 +56,21 @@
                     "type": "string"
                   }
                 }
+              }
+            }
+          }
+        ]
+      },
+      "successfulLogin": {
+        "allOf": [
+          {
+            "$ref": "#components/schemas/successful"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "token": {
+                "type": "string"
               }
             }
           }
@@ -145,6 +172,109 @@
                     "value": {
                       "status": "Error",
                       "msg": "Internal Database Server error!"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/login": {
+      "post": {
+        "summary": "login",
+        "requestBody": {
+          "description": "Login with 'username' & 'deviceName'",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#components/schemas/login"
+              },
+              "example": {
+                "username": "user",
+                "deviceName": "device1"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Login",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#components/schemas/successfulLogin"
+                },
+                "example": {
+                  "status": "Success",
+                  "msg": "Successful login :)",
+                  "token": "eyJhbGciOiJIUzI1NiIsIn689CI6IkpXVCJ9.eyJleHAiOjE2ODg5OTMwNTQsInVzZXJJZCI6MSwiZGV2aWNlSWQiOjMsInJ1bGUiOiJhZG1pbiIsImlhdCI6MTY4ODk4OTQ1NH0._xorStr-XjmozGPzHbtUAtvhPUFpdsVmBC2lRMPDB6U"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#components/schemas/error"
+                },
+                "examples": {
+                  "Missing required attribute": {
+                    "value": {
+                      "status": "Error",
+                      "msg": "Missing required attributes. Please provide 'username' and 'deviceName'."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#components/schemas/error"
+                },
+                "examples": {
+                  "Not Registered User": {
+                    "value": {
+                      "status": "Error",
+                      "msg": "The user is not registered!"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#components/schemas/error"
+                },
+                "examples": {
+                  "Database Error": {
+                    "value": {
+                      "status": "Error",
+                      "msg": "Internal Database Server error!"
+                    }
+                  },
+                  "Error Invalidating Previous Token": {
+                    "value": {
+                      "status": "Error",
+                      "msg": "Unable to invalidate device token!"
+                    }
+                  },
+                  "Token Creation Error": {
+                    "value": {
+                      "status": "Error",
+                      "msg": "Cannot update token expiration for that device!"
                     }
                   }
                 }
