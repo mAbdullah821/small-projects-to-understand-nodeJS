@@ -1,0 +1,8 @@
++[36m-----------------------[0m+
+|      Starting...      |
++[36m-----------------------[0m+
+Hello World_1
+Hello World_2
+Hello World_3
+Hello World_4
+Hello World_5 (End)
