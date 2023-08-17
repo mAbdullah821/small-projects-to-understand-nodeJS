@@ -1,5 +1,5 @@
-import fetch from 'node-fetch';
-import { orderTotal } from './order-total.js';
+const axios = require('axios');
+const { orderTotal_1, orderTotal_2 } = require('./order-total.js');
 
 const cart = {
   orders: [
@@ -20,5 +20,5 @@ const cart2 = {
   ],
 };
 
-orderTotal(fetch, cart).then((cost) => console.log('Orders-Cost: ', cost));
-orderTotal(fetch, cart2).then((cost) => console.log('Orders-Cost: ', cost));
+orderTotal(axios, cart).then((cost) => console.log('Orders-Cost: ', cost));
+orderTotal(axios, cart2).then((cost) => console.log('Orders-Cost: ', cost));
