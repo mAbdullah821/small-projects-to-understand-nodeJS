@@ -1,4 +1,5 @@
-const { getObject, asyncGetObject } = require('./utils');
+const { getObject, asyncGetObject, applyDiscount } = require('./utils');
+const db = require('./db');
 
 describe('getObject', () => {
   it('Should return an object with id = 1', () => {
@@ -37,5 +38,43 @@ describe('asyncGetObject', () => {
 
   it('Should throw error if the id is not defined', async () => {
     expect(asyncGetObject()).rejects.toThrowError('id is not defined!');
+  });
+});
+
+describe('applyDiscount', () => {
+  afterEach(() => {
+    jest.restoreAllMocks();
+  });
+
+  it('Should apply 10% discount for price: 10', () => {
+    const id = 1;
+    const targetOrder = { id, price: 10 };
+    const resultOrder = { id, price: 9 };
+
+    const getOrder = jest.spyOn(db, 'getOrder').mockReturnValue(targetOrder);
+    updateOrder = jest.spyOn(db, 'updateOrder');
+
+    expect(applyDiscount(id)).toMatchObject(resultOrder);
+
+    expect(getOrder.mock.calls.length).toBe(1);
+    expect(getOrder.mock.calls[0][0]).toBe(id);
+
+    expect(updateOrder).toHaveBeenCalled(); // calls.length = 1
+    expect(updateOrder).toHaveBeenCalledWith(resultOrder); // toEqual(resultOrder) --- exact match (no reference)
+
+    // db.getOrder.mockRestore();
+    // db.updateOrder.mockRestore();
+  });
+
+  it('Should not apply 10% discount for price: 5', () => {
+    const id = 1;
+
+    const getOrder = jest.spyOn(db, 'getOrder').mockImplementation((id) => {
+      return { id, price: 5 };
+    });
+
+    expect(applyDiscount(id)).toMatchObject({ id, price: 5 });
+
+    // db.getOrder.mockRestore();
   });
 });
