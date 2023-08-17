@@ -4,4 +4,10 @@ const getObject = (id) => {
   return { id, price: 50, isGood: true };
 };
 
-module.exports = { getObject };
+const asyncGetObject = async (id) => {
+  if (!id) throw new Error('id is not defined!');
+
+  return [{ id, price: 50, isGood: true }];
+};
+
+module.exports = { getObject, asyncGetObject };
