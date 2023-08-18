@@ -1,4 +1,5 @@
 const db = require('./db');
+const email = require('./email');
 const axios = require('axios');
 
 const getObject = (id) => {
@@ -35,4 +36,28 @@ const fetchOrder = async (id) => {
   return order;
 };
 
-module.exports = { getObject, asyncGetObject, applyDiscount, fetchOrder };
+const createOrder = async (userId, products = []) => {
+  if (!userId) throw new Error('userId is not defined!');
+
+  const price = products.reduce(
+    (totalPrice, product) => totalPrice + product.price,
+    0
+  );
+
+  await db.createOrder(userId, { products, totalPrice: price });
+
+  const user = await db.getUser(userId);
+
+  const message = `Order created successfully with totalPrice: ${price} and products: ${products}`;
+  await email.send(user.email, message);
+
+  return 'Done';
+};
+
+module.exports = {
+  getObject,
+  asyncGetObject,
+  applyDiscount,
+  fetchOrder,
+  createOrder,
+};

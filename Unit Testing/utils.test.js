@@ -3,9 +3,15 @@ const {
   asyncGetObject,
   applyDiscount,
   fetchOrder,
+  createOrder,
 } = require('./utils');
 const axios = require('axios');
 const db = require('./db');
+const email = require('./email');
+
+jest.mock('axios');
+jest.mock('./db');
+jest.mock('./email');
 
 describe('getObject', () => {
   it('Should return an object with id = 1', () => {
@@ -85,13 +91,44 @@ describe('applyDiscount', () => {
   });
 });
 
-jest.mock('axios');
-
 describe('fetchOrder', () => {
   it('Should return the order data', () => {
     const id = 1;
     axios.get.mockResolvedValue({ data: { id, userId: id } });
 
     expect(fetchOrder(id)).resolves.toEqual({ id, userId: id });
+  });
+});
+
+describe('createOrder', () => {
+  it('Should Throw error if userId is not defined', () => {
+    expect(createOrder()).rejects.toThrowError('userId is not defined!');
+  });
+
+  it('Should calculate total price = 250 & produce the correct email message & pass the correct argument values', async () => {
+    const userId = 1;
+    const products = [
+      { price: 50 },
+      { price: 100 },
+      { price: 75 },
+      { price: 25 },
+    ];
+    const message = `Order created successfully with totalPrice: ${250} and products: ${products}`;
+    const userEmail = 'hello, ' + userId;
+
+    db.createOrder = jest.fn();
+    db.getUser = jest.fn().mockResolvedValue({ id: userId, email: userEmail });
+    email.send = jest.fn();
+
+    await expect(createOrder(userId, products)).resolves.toBe('Done');
+
+    expect(db.createOrder.mock.calls[0][0]).toBe(userId);
+    expect(db.createOrder.mock.calls[0][1]).toEqual({
+      products,
+      totalPrice: 250,
+    });
+
+    expect(email.send.mock.calls[0][0]).toMatch(userEmail);
+    expect(email.send.mock.calls[0][1]).toMatch(message);
   });
 });

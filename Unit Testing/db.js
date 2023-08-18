@@ -6,4 +6,17 @@ const updateOrder = (order) => {
   console.log(order);
 };
 
-module.exports = { getOrder, updateOrder };
+const createOrder = async (userId, order) => {
+  console.log(userId, ' --> ', order);
+
+  return 'Done';
+};
+
+const getUser = async (id) => {
+  return {
+    id,
+    email: `hello, ${id}`,
+  };
+};
+
+module.exports = { getOrder, updateOrder, createOrder, getUser };
