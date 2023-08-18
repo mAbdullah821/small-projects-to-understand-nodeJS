@@ -1,4 +1,5 @@
 const db = require('./db');
+const axios = require('axios');
 
 const getObject = (id) => {
   if (!id) throw new Error('id is not defined!');
@@ -24,4 +25,14 @@ const applyDiscount = (orderId) => {
   return order;
 };
 
-module.exports = { getObject, asyncGetObject, applyDiscount };
+const fetchOrder = async (id) => {
+  const { data: order } = await axios.get(
+    'https://jsonplaceholder.typicode.com/todos/' + id
+  );
+
+  console.log(order);
+
+  return order;
+};
+
+module.exports = { getObject, asyncGetObject, applyDiscount, fetchOrder };

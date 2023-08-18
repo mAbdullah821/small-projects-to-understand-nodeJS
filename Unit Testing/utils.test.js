@@ -1,4 +1,10 @@
-const { getObject, asyncGetObject, applyDiscount } = require('./utils');
+const {
+  getObject,
+  asyncGetObject,
+  applyDiscount,
+  fetchOrder,
+} = require('./utils');
+const axios = require('axios');
 const db = require('./db');
 
 describe('getObject', () => {
@@ -76,5 +82,16 @@ describe('applyDiscount', () => {
     expect(applyDiscount(id)).toMatchObject({ id, price: 5 });
 
     // db.getOrder.mockRestore();
+  });
+});
+
+jest.mock('axios');
+
+describe('fetchOrder', () => {
+  it('Should return the order data', () => {
+    const id = 1;
+    axios.get.mockResolvedValue({ data: { id, userId: id } });
+
+    expect(fetchOrder(id)).resolves.toEqual({ id, userId: id });
   });
 });
