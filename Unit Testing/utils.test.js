@@ -113,7 +113,7 @@ describe('createOrder', () => {
       { price: 75 },
       { price: 25 },
     ];
-    const message = `Order created successfully with totalPrice: ${250} and products: ${products}`;
+    const message = `Order created successfully`;
     const userEmail = 'hello, ' + userId;
 
     db.createOrder = jest.fn();
@@ -122,12 +122,15 @@ describe('createOrder', () => {
 
     await expect(createOrder(userId, products)).resolves.toBe('Done');
 
-    expect(db.createOrder.mock.calls[0][0]).toBe(userId);
-    expect(db.createOrder.mock.calls[0][1]).toEqual({
+    expect(db.createOrder.mock.calls.length).toBe(1);
+    expect(db.createOrder).toHaveBeenCalledWith(userId, {
       products,
       totalPrice: 250,
     });
 
+    expect(db.getUser.mock.calls.length).toBe(1);
+
+    expect(email.send.mock.calls.length).toBe(1);
     expect(email.send.mock.calls[0][0]).toMatch(userEmail);
     expect(email.send.mock.calls[0][1]).toMatch(message);
   });
