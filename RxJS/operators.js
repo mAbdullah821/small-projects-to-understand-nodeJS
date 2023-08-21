@@ -89,18 +89,9 @@ const observer = interval(1000)
   .pipe(
     takeWhile((val) => val < 2),
     switchMap(() => interval(100)),
-    mergeMap((val) =>
-      iif(
-        () => val <= 10,
-        of(val),
-        tap(() => observer.unsubscribe())
-      )
-    )
-
-    // skipWhile((val) => val <= 10),
-    // ,
-    // endWith('Friend')
+    switchMap((val) => {
+      if (val > 8) observer.unsubscribe();
+      else return of(val);
+    })
   )
   .subscribe(console.log);
-
-//TODO: Solve the error in the previous code
