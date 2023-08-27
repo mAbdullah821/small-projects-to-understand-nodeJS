@@ -1,23 +1,15 @@
-const {
-  getObject,
-  asyncGetObject,
-  applyDiscount,
-  fetchOrder,
-  createOrder,
-} = require('./utils');
+const { getObject, asyncGetObject, applyDiscount, fetchOrder, createOrder } = require('./utils');
 const axios = require('axios');
 const db = require('./db');
 const email = require('./email');
 
 jest.mock('axios');
-jest.mock('./db');
+// jest.mock('./db');
 jest.mock('./email');
 
 describe('getObject', () => {
   it('Should return an object with id = 1', () => {
-    expect(getObject(1)).toEqual(
-      expect.objectContaining({ id: 1, price: expect.any(Number) })
-    );
+    expect(getObject(1)).toEqual(expect.objectContaining({ id: 1, price: expect.any(Number) }));
 
     expect(getObject(1)).toMatchObject({ id: 1, price: 50 });
 
@@ -41,7 +33,7 @@ describe('asyncGetObject', () => {
       isGood: true,
     });
 
-    expect(asyncGetObject(1)).resolves.toContainEqual({
+    await expect(asyncGetObject(1)).resolves.toContainEqual({
       id: 1,
       price: 50,
       isGood: true,
@@ -49,7 +41,7 @@ describe('asyncGetObject', () => {
   });
 
   it('Should throw error if the id is not defined', async () => {
-    expect(asyncGetObject()).rejects.toThrowError('id is not defined!');
+    return expect(asyncGetObject()).rejects.toThrowError('id is not defined!');
   });
 });
 
@@ -72,7 +64,7 @@ describe('applyDiscount', () => {
     expect(getOrder.mock.calls[0][0]).toBe(id);
 
     expect(updateOrder).toHaveBeenCalled(); // calls.length = 1
-    expect(updateOrder).toHaveBeenCalledWith(resultOrder); // toEqual(resultOrder) --- exact match (no reference)
+    expect(updateOrder).toHaveBeenCalledWith(resultOrder); // toEqual(resultOrder) --- exact match (no reference consideration)
 
     // db.getOrder.mockRestore();
     // db.updateOrder.mockRestore();
@@ -96,28 +88,27 @@ describe('fetchOrder', () => {
     const id = 1;
     axios.get.mockResolvedValue({ data: { id, userId: id } });
 
-    expect(fetchOrder(id)).resolves.toEqual({ id, userId: id });
+    return expect(fetchOrder(id)).resolves.toEqual({ id, userId: id });
   });
 });
 
 describe('createOrder', () => {
+  afterEach(() => {
+    jest.restoreAllMocks();
+  });
+
   it('Should Throw error if userId is not defined', () => {
     expect(createOrder()).rejects.toThrowError('userId is not defined!');
   });
 
   it('Should calculate total price = 250 & produce the correct email message & pass the correct argument values', async () => {
     const userId = 1;
-    const products = [
-      { price: 50 },
-      { price: 100 },
-      { price: 75 },
-      { price: 25 },
-    ];
+    const products = [{ price: 50 }, { price: 100 }, { price: 75 }, { price: 25 }];
     const message = `Order created successfully`;
     const userEmail = 'hello, ' + userId;
 
     db.createOrder = jest.fn();
-    db.getUser = jest.fn().mockResolvedValue({ id: userId, email: userEmail });
+    jest.spyOn(db, 'getUser').mockResolvedValue({ id: userId, email: userEmail });
     email.send = jest.fn();
 
     await expect(createOrder(userId, products)).resolves.toBe('Done');
